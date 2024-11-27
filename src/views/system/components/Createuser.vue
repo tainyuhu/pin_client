@@ -1,0 +1,724 @@
+<template>
+  <div class="create-user-form">
+    <el-form
+      ref="userForm"
+      :model="userForm"
+      :rules="rules"
+      :label-width="isMobile ? '90px' : '120px'"
+      :label-position="isMobile ? 'top' : 'right'"
+      size="small"
+    >
+      <!-- 基本信息 -->
+      <div class="form-section">
+        <div class="section-title">基本信息</div>
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="員工編號" prop="username">
+              <el-input
+                v-model="userForm.username"
+                placeholder="請輸入員工編號"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="姓名" prop="name">
+              <el-input v-model="userForm.name" placeholder="請輸入姓名" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 組織信息 -->
+      <div class="form-section">
+        <div class="section-title">組織信息</div>
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="公司" prop="company">
+              <el-select
+                v-model="userForm.company"
+                placeholder="請選擇公司"
+                clearable
+                class="full-width"
+                @change="handleCompanyChange"
+              >
+                <el-option
+                  v-for="item in companyOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="群組" prop="dept_id">
+              <treeselect
+                v-model="userForm.dept_id"
+                :options="deptTreeOptions"
+                :normalizer="deptNormalizer"
+                :default-expand-level="1"
+                placeholder="請選擇群組"
+                :clearable="false"
+                class="full-width"
+                :searchable="true"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="區域" prop="area">
+              <el-select
+                v-model="userForm.area"
+                placeholder="請選擇區域"
+                clearable
+                class="full-width"
+              >
+                <el-option
+                  v-for="item in areaOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="職位" prop="position">
+              <el-select
+                v-model="userForm.position"
+                placeholder="請選擇職位"
+                clearable
+                class="full-width"
+              >
+                <el-option
+                  v-for="item in positionOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 聯絡信息 -->
+      <div class="form-section">
+        <div class="section-title">聯絡信息</div>
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="電子郵件" prop="email">
+              <el-input v-model="userForm.email" placeholder="請輸入電子郵件" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="手機號碼" prop="phone">
+              <el-input v-model="userForm.phone" placeholder="請輸入手機號碼" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :span="24">
+            <el-form-item label="住址" prop="address">
+              <el-input v-model="userForm.address" placeholder="請輸入住址" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 系統權限 -->
+      <div class="form-section">
+        <div class="section-title">系統權限</div>
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="角色" prop="role">
+              <el-select
+                v-model="userForm.role"
+                multiple
+                collapse-tags
+                placeholder="請選擇角色"
+                clearable
+                class="full-width"
+              >
+                <el-option
+                  v-for="item in roleOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="帳號狀態" prop="status">
+              <el-select
+                v-model="userForm.status"
+                placeholder="請選擇帳號狀態"
+                class="full-width"
+              >
+                <el-option
+                  v-for="item in statusOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 入職信息 -->
+      <div class="form-section">
+        <div class="section-title">入職信息</div>
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="入職日期" prop="join_date">
+              <el-date-picker
+                v-model="userForm.join_date"
+                type="date"
+                placeholder="請選擇入職日期"
+                class="full-width"
+                value-format="yyyy-MM-dd"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="員工狀態" prop="employee_status">
+              <el-select
+                v-model="userForm.employee_status"
+                placeholder="請選擇員工狀態"
+                class="full-width"
+              >
+                <el-option
+                  v-for="item in employeeStatusOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :span="24">
+            <el-form-item label="備註" prop="notes">
+              <el-input
+                v-model="userForm.notes"
+                type="textarea"
+                :rows="3"
+                placeholder="請輸入備註"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 表單按鈕 -->
+      <div class="form-buttons">
+        <el-button
+          type="primary"
+          :loading="loading"
+          class="submit-button"
+          @click="submitForm"
+        >
+          確認新增
+        </el-button>
+        <el-button class="action-button" @click="resetForm">
+          重置
+        </el-button>
+        <el-button class="action-button" @click="cancel">
+          取消
+        </el-button>
+      </div>
+    </el-form>
+  </div>
+</template>
+
+<script>
+import { createUser } from "@/api/user";
+import { getOrgAll } from "@/api/org";
+import { getRoleAll } from "@/api/role";
+import { genTree } from "@/utils/tree";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+
+export default {
+  name: "Createuser",
+  components: { Treeselect },
+  data() {
+    const validateEmail = (rule, value, callback) => {
+      if (!value) {
+        callback();
+        return;
+      }
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailRegex.test(value)) {
+        callback(new Error("請輸入正確的電子郵件格式"));
+      } else {
+        callback();
+      }
+    };
+
+    const validatePhone = (rule, value, callback) => {
+      if (!value) {
+        callback();
+        return;
+      }
+      const phoneRegex = /^09\d{8}$/;
+      if (!phoneRegex.test(value)) {
+        callback(new Error("請輸入正確的手機號碼格式"));
+      } else {
+        callback();
+      }
+    };
+
+    return {
+      deptTreeOptions: [],
+      deptOptions: [],
+      loading: false,
+      isMobile: false,
+      userForm: {
+        username: "",
+        name: "",
+        company: "",
+        dept_id: "",
+        area: "",
+        position: "",
+        email: "",
+        phone: "",
+        address: "",
+        role: [],
+        status: "1",
+        employee_status: "1",
+        join_date: "",
+        notes: ""
+      },
+      rules: {
+        username: [
+          { required: true, message: "請輸入員工編號", trigger: "blur" },
+          { min: 3, max: 20, message: "長度在 3 到 20 個字符", trigger: "blur" }
+        ],
+        name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
+        company: [{ required: true, message: "請選擇公司", trigger: "change" }],
+        dept_id: [{ required: true, message: "請選擇群組", trigger: "change" }],
+        position: [
+          { required: true, message: "請選擇職位", trigger: "change" }
+        ],
+        email: [{ validator: validateEmail, trigger: "blur" }],
+        phone: [{ validator: validatePhone, trigger: "blur" }],
+        role: [{ required: true, message: "請選擇角色", trigger: "change" }],
+        join_date: [
+          { required: true, message: "請選擇入職日期", trigger: "change" }
+        ]
+      },
+      companyOptions: [
+        { value: "1", label: "公司一" },
+        { value: "2", label: "公司二" }
+      ],
+      deptOptions: [],
+      areaOptions: [
+        { value: "1", label: "北區" },
+        { value: "2", label: "中區" },
+        { value: "3", label: "南區" }
+      ],
+      positionOptions: [
+        { value: "1", label: "經理" },
+        { value: "2", label: "職員" }
+      ],
+      roleOptions: [],
+      statusOptions: [
+        { value: "1", label: "啟用" },
+        { value: "0", label: "停用" }
+      ],
+      employeeStatusOptions: [
+        { value: "1", label: "在職" },
+        { value: "2", label: "離職" },
+        { value: "3", label: "待職" }
+      ]
+    };
+  },
+  created() {
+    this.checkDeviceType();
+    window.addEventListener("resize", this.checkDeviceType);
+    this.getDeptOptions();
+    this.getRoleOptions();
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.checkDeviceType);
+  },
+  methods: {
+    checkDeviceType() {
+      this.isMobile = window.innerWidth < 768;
+    },
+    async getDeptOptions() {
+      try {
+        const res = await getOrgAll();
+        if (res.code === 200) {
+          // 轉換數據格式
+          this.deptTreeOptions = this.formatTreeData(genTree(res.data));
+
+          // 設置預設值為根群組
+          if (this.deptTreeOptions.length > 0) {
+            this.userForm.dept_id = this.deptTreeOptions[0].id;
+          }
+        }
+      } catch (error) {
+        console.error("獲取群組列表失敗:", error);
+        this.$message.error("獲取群組列表失敗");
+      }
+    },
+    formatTreeData(data) {
+      return data.map(item => ({
+        id: item.id,
+        label: item.name,
+        children: item.children ? this.formatTreeData(item.children) : undefined
+      }));
+    },
+    deptNormalizer(node) {
+      return {
+        id: node.id,
+        label: node.label,
+        children: node.children
+      };
+    },
+    async getRoleOptions() {
+      try {
+        const res = await getRoleAll();
+        if (res.code === 200) {
+          this.roleOptions = res.data.map(item => ({
+            value: item.id,
+            label: item.name
+          }));
+        }
+      } catch (error) {
+        console.error("獲取角色列表失敗:", error);
+        this.$message.error("獲取角色列表失敗");
+      }
+    },
+    handleCompanyChange() {
+      this.userForm.dept_id = "";
+      this.getDeptOptions();
+    },
+    submitForm() {
+      this.$refs.userForm.validate(valid => {
+        if (valid) {
+          this.loading = true;
+          createUser(this.userForm)
+            .then(res => {
+              if (res.code === 200) {
+                this.$message.success("新增使用者成功");
+                this.$emit("createSuccess");
+                this.resetForm();
+              } else {
+                this.$message.error(res.message || "新增使用者失敗");
+              }
+            })
+            .catch(error => {
+              console.error("新增使用者失敗:", error);
+              this.$message.error("新增使用者失敗");
+            })
+            .finally(() => {
+              this.loading = false;
+            });
+        } else {
+          if (this.isMobile) {
+            const errorField = document.querySelector(".el-form-item__error");
+            if (errorField) {
+              errorField.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+              });
+            }
+          }
+          return false;
+        }
+      });
+    },
+    resetForm() {
+      this.$refs.userForm.resetFields();
+    },
+    cancel() {
+      this.$emit("cancel");
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.create-user-form {
+  padding: 10px;
+
+  @media screen and (min-width: 768px) {
+    padding: 20px;
+  }
+
+  .form-section {
+    margin-bottom: 15px;
+    padding: 15px 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+
+    @media screen and (min-width: 768px) {
+      margin-bottom: 30px;
+      padding: 20px;
+    }
+
+    &:hover {
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      margin-bottom: 15px;
+      padding-left: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      border-left: 3px solid #409eff;
+      color: #303133;
+
+      @media screen and (min-width: 768px) {
+        margin-bottom: 20px;
+        font-size: 16px;
+      }
+    }
+  }
+
+  :deep(.el-form-item) {
+    margin-bottom: 12px;
+
+    @media screen and (min-width: 768px) {
+      margin-bottom: 18px;
+    }
+
+    // 標籤樣式
+    .el-form-item__label {
+      line-height: 1.4;
+      padding-bottom: 8px;
+      font-weight: 500;
+      color: #606266;
+
+      @media screen and (max-width: 767px) {
+        text-align: left;
+        padding-bottom: 5px;
+      }
+    }
+
+    // 錯誤消息樣式
+    .el-form-item__error {
+      padding-top: 4px;
+      font-size: 12px;
+    }
+
+    // 必填星號樣式
+    .el-form-item.is-required .el-form-item__label:before {
+      margin-right: 4px;
+    }
+  }
+
+  // 輸入框樣式
+  :deep(.el-input__inner) {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 12px;
+
+    &:hover {
+      border-color: #c0c4cc;
+    }
+
+    &:focus {
+      border-color: #409eff;
+    }
+  }
+
+  // 文本域樣式
+  :deep(.el-textarea__inner) {
+    padding: 8px 12px;
+    min-height: 80px;
+
+    &:hover {
+      border-color: #c0c4cc;
+    }
+
+    &:focus {
+      border-color: #409eff;
+    }
+  }
+
+  // 下拉選擇器樣式
+  :deep(.el-select) {
+    width: 100%;
+
+    .el-input__inner {
+      cursor: pointer;
+    }
+  }
+
+  // 日期選擇器樣式
+  :deep(.el-date-editor) {
+    width: 100%;
+  }
+
+  // 公共樣式類
+  .full-width {
+    width: 100%;
+  }
+
+  // 按鈕組樣式
+  .form-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+
+    @media screen and (min-width: 768px) {
+      flex-direction: row;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 15px;
+    }
+
+    .el-button {
+      margin: 0;
+      height: 40px;
+      font-size: 14px;
+      width: 100%;
+
+      @media screen and (min-width: 768px) {
+        width: auto;
+        min-width: 120px;
+      }
+
+      &.submit-button {
+        order: -1;
+      }
+    }
+  }
+}
+
+// 移動端特殊樣式
+@media screen and (max-width: 767px) {
+  :deep(.el-form--label-top) {
+    .el-form-item__label {
+      padding: 0 0 8px;
+    }
+  }
+
+  :deep(.el-select-dropdown.el-popper) {
+    max-width: 90vw;
+  }
+
+  :deep(.el-picker-panel) {
+    max-width: 90vw;
+  }
+}
+
+// 深色模式支持
+@media (prefers-color-scheme: dark) {
+  .create-user-form {
+    .form-section {
+      background: #2b2b2b;
+
+      .section-title {
+        color: #e0e0e0;
+      }
+    }
+
+    :deep(.el-form-item__label) {
+      color: #e0e0e0;
+    }
+
+    :deep(.el-input__inner),
+    :deep(.el-textarea__inner) {
+      background-color: #363636;
+      border-color: #484848;
+      color: #e0e0e0;
+
+      &::placeholder {
+        color: #808080;
+      }
+    }
+
+    :deep(.el-select-dropdown) {
+      background-color: #363636;
+      border-color: #484848;
+
+      .el-select-dropdown__item {
+        color: #e0e0e0;
+
+        &.selected {
+          color: #409eff;
+        }
+
+        &:hover {
+          background-color: #404040;
+        }
+      }
+    }
+
+    :deep(.el-date-picker) {
+      background-color: #363636;
+      border-color: #484848;
+
+      .el-date-picker__header {
+        color: #e0e0e0;
+      }
+
+      .el-date-table th {
+        color: #a0a0a0;
+      }
+
+      .el-date-table td {
+        color: #e0e0e0;
+
+        &.current:not(.disabled) span {
+          background-color: #409eff;
+        }
+      }
+    }
+  }
+}
+
+// Loading 狀態樣式
+:deep(.el-loading-mask) {
+  background-color: rgba(255, 255, 255, 0.8);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+// 錯誤提示優化
+:deep(.el-form-item.is-error) {
+  .el-input__inner,
+  .el-textarea__inner {
+    border-color: #f56c6c;
+
+    &:focus {
+      border-color: #f56c6c;
+      box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.2);
+    }
+  }
+}
+
+// 動畫效果
+.form-section {
+  transition: all 0.3s ease;
+}
+
+.el-button {
+  transition: all 0.3s ease;
+}
+
+// 觸控優化
+@media (hover: none) {
+  .el-button:active {
+    transform: scale(0.98);
+  }
+}
+</style>

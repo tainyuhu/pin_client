@@ -1,0 +1,35 @@
+// 定義變數
+$navy-blue: #253046; // 主色 - 海軍藍，用於主要背景、按鈕等
+$navy-blue-hover: #2e405e; // Hover 顏色 - 比主色稍亮，用於按鈕和鏈接的 Hover 效果
+$white: #ffffff; // 白色 - 字體色或背景色
+$gold: #d4af37; // 點綴色 - 啞金色，用於標籤或次要按鈕
+$orange: #ff4500; // 點綴色 - 橘色，用於高亮的 CTA 按鈕
+$green: #3cb371; // 成功提示色 - 正確狀態
+$red: #ff6347; // 錯誤提示色 - 錯誤狀態
+$beige: #eaeaea; // 米白色 - 網站整體背景色
+
+// sidebar
+$menuText: $white;
+$menuActiveText: $gold;
+$subMenuActiveText: $beige; //https://github.com/ElemeFE/element/issues/12951
+
+$menuBg: $navy-blue;
+$menuHover: $navy-blue-hover;
+
+$subMenuBg: $navy-blue;
+$subMenuHover: $navy-blue-hover;
+
+$sideBarWidth: 210px;
+
+// the :export directive is the magic sauce for webpack
+// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+:export {
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+  subMenuActiveText: $subMenuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  subMenuBg: $subMenuBg;
+  subMenuHover: $subMenuHover;
+  sideBarWidth: $sideBarWidth;
+}
