@@ -134,7 +134,7 @@
 
     <!-- 使用者清單對話框 -->
     <UserListDialog
-      v-if="showUserDialog"
+      v-show="showUserDialog"
       :visible.sync="showUserDialog"
       :dialog-title="
         (currentOrg && currentOrg.name ? currentOrg.name : '') + ' - 使用者清單'
@@ -145,7 +145,7 @@
 
     <!-- 新增/編輯對話框 -->
     <Createorg
-      v-if="showCreateDialog"
+      v-show="showCreateDialog"
       :visible.sync="showCreateDialog"
       :options="tableData"
       @submit="handleCreate"
@@ -153,7 +153,7 @@
     />
 
     <Editorg
-      v-if="showEditDialog"
+      v-show="showEditDialog"
       :visible.sync="showEditDialog"
       :options="tableData"
       :org="currentOrg"
@@ -211,7 +211,6 @@ export default {
   methods: {
     checkPermission,
 
-    // 獲取數據
     async getList() {
       this.listLoading = true;
       try {
@@ -226,31 +225,25 @@ export default {
       }
     },
 
-    // 獲取使用者數量
     async loadUserCounts() {
       try {
         this.setTreeLoading(this.tableData, true);
         const { data } = await fetchGroupUserCounts();
         this.updateUserCounts(this.tableData, data);
       } catch (error) {
-        console.error("獲取使用者數量失敗:", error);
         this.$message.error("獲取使用者數量失敗");
       } finally {
         this.setTreeLoading(this.tableData, false);
       }
     },
 
-    // 遞歸設置 loading 狀態
     setTreeLoading(tree, loading) {
       tree.forEach(node => {
         this.$set(node, "loading", loading);
-        if (node.children && node.children.length) {
-          this.setTreeLoading(node.children, loading);
-        }
+        if (node.children) this.setTreeLoading(node.children, loading);
       });
     },
 
-    // 更新使用者數量
     updateUserCounts(tree, userCountsData) {
       const userCountMap = {};
       userCountsData.forEach(item => {
@@ -259,43 +252,30 @@ export default {
 
       const updateNodes = nodes => {
         nodes.forEach(node => {
-          if (userCountMap[node.id] !== undefined) {
-            this.$set(node, "user_count", userCountMap[node.id]);
-          } else {
-            this.$set(node, "user_count", 0);
-          }
-          if (node.children && node.children.length) {
-            updateNodes(node.children);
-          }
+          this.$set(node, "user_count", userCountMap[node.id] || 0);
+          if (node.children) updateNodes(node.children);
         });
       };
 
       updateNodes(tree);
     },
 
-    // 處理使用者清單點擊
     handleUserListClick(row, event) {
-      event.stopPropagation(); // 停止事件傳播
+      event.stopPropagation();
       this.showUserList(row);
     },
 
-    // 處理編輯點擊
     handleEditClick(row, event) {
-      event.stopPropagation(); // 停止事件傳播
+      event.stopPropagation();
       this.openEditDialog(row);
     },
 
-    // 行點擊處理
-    handleRowClick(row, column, event) {
-      // 如果需要行點擊的其他功能，可以在這裡處理
+    handleRowClick(row) {
       console.log("Row clicked:", row);
     },
 
-    // 顯示使用者清單
     async showUserList(org) {
-      if (this.showEditDialog || this.showCreateDialog) {
-        return; // 如果編輯或新增對話框開啟，則不執行
-      }
+      if (this.showEditDialog || this.showCreateDialog) return;
       this.currentOrg = org;
       this.showUserDialog = true;
       this.userListLoading = true;
@@ -304,14 +284,12 @@ export default {
         const { data } = await fetchOrgUsers(org.id);
         this.userList = data.users;
       } catch (error) {
-        console.error("獲取使用者清單失敗:", error);
         this.$message.error("獲取使用者清單失敗");
       } finally {
         this.userListLoading = false;
       }
     },
 
-    // 搜尋相關
     handleFilter() {
       const searchLower = this.search.toLowerCase();
       const filtered = this.orgList.filter(
@@ -326,11 +304,8 @@ export default {
       this.getList();
     },
 
-    // 新增相關
     openCreateDialog() {
-      if (this.showUserDialog) {
-        this.showUserDialog = false;
-      }
+      if (this.showUserDialog) this.showUserDialog = false;
       this.showCreateDialog = true;
     },
 
@@ -339,17 +314,13 @@ export default {
     },
 
     async handleCreate(org) {
-      console.log("新增群組:", org);
       this.$message.success("群組新增成功");
       await this.getList();
       this.closeCreateDialog();
     },
 
-    // 編輯相關
     openEditDialog(org) {
-      if (this.showUserDialog) {
-        this.showUserDialog = false;
-      }
+      if (this.showUserDialog) this.showUserDialog = false;
       this.currentOrg = { ...org };
       this.showEditDialog = true;
     },
@@ -359,7 +330,6 @@ export default {
     },
 
     async handleEdit(org) {
-      console.log("更新群組:", org);
       this.$message.success("群組更新成功");
       await this.getList();
       this.closeEditDialog();

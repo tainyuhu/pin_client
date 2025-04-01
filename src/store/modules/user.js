@@ -41,7 +41,7 @@ const actions = {
           const { data } = response;
           commit("SET_TOKEN", data.access);
           setToken(data.access);
-          resolve();
+          resolve(response);
         })
         .catch(error => {
           reject(error);

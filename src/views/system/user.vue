@@ -259,111 +259,111 @@ export default {
       columns: [
         {
           label: "員工編號",
-          prop: "username",
-          width: "150",
+          prop: "username", // 使用 username 作為員工編號
+          width: "120",
           required: true
         },
         {
           label: "姓名",
           prop: "name",
-          width: "120",
+          width: "100",
           required: true
+        },
+        {
+          label: "性別",
+          prop: "gender",
+          width: "80",
+          group: "basic"
+        },
+        {
+          label: "年齡",
+          prop: "age",
+          width: "80",
+          group: "basic"
         },
         {
           label: "公司",
           prop: "company",
+          width: "120",
           group: "basic"
         },
         {
-          label: "群組",
-          prop: "dept_name",
-          group: "basic",
-          required: true
-        },
-        {
-          label: "區域",
-          prop: "area",
-          width: "150",
+          label: "部門",
+          prop: "department",
+          width: "120",
           group: "basic"
         },
         {
           label: "職位",
           prop: "position",
+          width: "120",
+          group: "basic",
+          required: true
+        },
+        {
+          label: "群組",
+          prop: "dept",
+          width: "120",
           group: "basic",
           required: true
         },
         {
           label: "電子郵件",
           prop: "email",
+          width: "150",
           group: "contact"
         },
         {
           label: "手機號碼",
           prop: "phone",
-          width: "150",
+          width: "120",
           group: "contact"
+        },
+        {
+          label: "通訊地址",
+          prop: "address",
+          width: "200",
+          group: "contact"
+        },
+        {
+          label: "入職日期",
+          prop: "hire_date",
+          width: "120",
+          group: "dates",
+          required: true
         },
         {
           label: "員工狀態",
           prop: "employee_status",
+          width: "100",
           group: "status",
           required: true
         },
         {
           label: "帳號狀態",
-          prop: "account_status",
+          prop: "is_active", // 使用 AbstractUser 的 is_active
+          width: "100",
           group: "status",
           required: true
-        },
-        {
-          label: "入職日期",
-          prop: "join_date",
-          width: "150",
-          group: "dates",
-          required: true
-        },
-        {
-          label: "離職日期",
-          prop: "leave_date",
-          width: "150",
-          group: "dates"
-        },
-        {
-          label: "住址",
-          prop: "address",
-          group: "contact"
         },
         {
           label: "角色",
-          prop: "roles_name",
+          prop: "roles",
+          width: "120",
           group: "status",
           required: true
-        },
-        {
-          label: "預設配送地址",
-          prop: "default_shipping_address",
-          group: "contact"
-        },
-        {
-          label: "身份驗證狀態",
-          prop: "identity_verification_status",
-          group: "status"
-        },
-        {
-          label: "備註",
-          prop: "notes",
-          group: "other"
         }
       ],
       visibleColumns: [
         "username",
         "name",
-        "dept_name",
+        "dept",
         "position",
+        "phone",
+        "email",
         "employee_status",
-        "account_status",
-        "roles_name",
-        "join_date"
+        "is_active",
+        "hire_date"
       ],
       showColumnSelector: false,
       createDialogVisible: false,

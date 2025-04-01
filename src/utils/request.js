@@ -53,7 +53,7 @@ service.interceptors.response.use(
       if (res.msg.indexOf("No active account") !== -1) {
         Message({
           message:
-            "登入失敗，請確認帳號狀態及登入資訊是否正確。若持續發生問題，請聯絡管理員。",
+            "登入失敗，請確認帳號狀態及登入資訊是否正確。若持續發生問題，請聯絡行銷客服部。",
           type: "error",
           duration: 3 * 1000
         });
