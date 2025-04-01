@@ -6,6 +6,9 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import locale from "element-ui/lib/locale/lang/zh-TW"; // 引入繁體中文語言包
 
+import AntDesign from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
+
 import "@/styles/index.scss"; // global css
 
 import App from "./App";
@@ -32,7 +35,7 @@ if (process.env.NODE_ENV === "production") {
 
 // 設置 ElementUI 為繁體中文
 Vue.use(ElementUI, { locale, size: "medium" });
-
+Vue.use(AntDesign);
 Vue.config.productionTip = false;
 
 new Vue({

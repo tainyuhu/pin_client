@@ -23,23 +23,8 @@
         </div>
       </div>
 
-      <!-- LINE 帳號資訊 -->
-      <div v-if="isLineBound" class="line-info">
-        <div class="line-profile">
-          <img
-            :src="lineUserInfo.pictureUrl"
-            alt="LINE頭像"
-            class="line-avatar"
-          />
-          <div class="line-details">
-            <div class="line-name">{{ lineUserInfo.displayName }}</div>
-            <div class="bind-time">綁定時間：{{ lineUserInfo.bindTime }}</div>
-          </div>
-        </div>
-      </div>
-
       <!-- 綁定說明 -->
-      <div v-else class="binding-guide">
+      <div v-if="!isLineBound" class="binding-guide">
         <div class="guide-title">
           <i class="el-icon-info"></i>
           綁定說明
@@ -112,6 +97,8 @@
 </template>
 
 <script>
+import { lineUserAPI, lineUtils } from "@/api/line";
+
 export default {
   name: "LineBinding",
 
@@ -120,56 +107,146 @@ export default {
       isLineBound: false,
       loading: false,
       unbindDialogVisible: false,
-      lineUserInfo: {
-        pictureUrl: "",
-        displayName: "",
-        bindTime: ""
-      }
+      userId: ""
     };
   },
 
+  computed: {
+    hasValidUserId() {
+      return Boolean(this.userId);
+    }
+  },
+
   created() {
-    this.checkBindingStatus();
+    // 從 URL query 中獲取參數
+    this.userId = this.$route.query.userId;
+
+    // 初始化
+    this.initialize();
   },
 
   methods: {
-    checkBindingStatus() {
-      // TODO: 檢查綁定狀態的 API 調用
-      this.loading = true;
-      setTimeout(() => {
-        this.loading = false;
-        // 模擬數據
-        this.isLineBound = false;
-      }, 1000);
+    // 初始化
+    async initialize() {
+      if (!this.hasValidUserId) {
+        this.$message.error("無效的使用者 ID");
+        setTimeout(() => {
+          this.$router.push("/login");
+        }, 2000);
+        return;
+      }
+      await this.checkBindingStatus();
     },
 
-    handleBinding() {
-      this.loading = true;
-      // TODO: 實際的 LINE 綁定邏輯
-      setTimeout(() => {
+    // 檢查綁定狀態
+    async checkBindingStatus() {
+      try {
+        this.loading = true;
+        const response = await lineUserAPI.checkBindStatus(this.userId);
+
+        // 驗證回應資料
+        if (!response || typeof response !== "object") {
+          throw new Error("無效的回應數據");
+        }
+
+        const data = response.data;
+        // 直接更新綁定狀態
+        this.isLineBound = data.is_bound;
+      } catch (error) {
+        console.error("檢查綁定狀態錯誤:", error);
+        this.$message.error(this.getErrorMessage(error, "檢查綁定狀態失敗"));
+        this.resetBindStatus();
+      } finally {
         this.loading = false;
-        this.$message.success("LINE 綁定成功");
-        this.isLineBound = true;
-      }, 1500);
+      }
     },
 
+    // 重置綁定狀態
+    resetBindStatus() {
+      this.isLineBound = false;
+    },
+
+    // 處理 LINE 綁定
+    async handleBinding() {
+      if (!this.hasValidUserId) {
+        this.$message.error("請先登入系統");
+        return;
+      }
+
+      try {
+        this.loading = true;
+        const response = await lineUserAPI.getLoginUrl();
+
+        if (!response || !response.login_url) {
+          throw new Error("無效的登入 URL");
+        }
+
+        // 生成並存儲 state
+        const state = lineUtils.generateState();
+        localStorage.setItem("line_login_state", state);
+        // 存儲當前用戶 ID，用於綁定完成後的處理
+        // localStorage.setItem("binding_user_id", this.userId);
+
+        // 跳轉到 LINE 授權頁面
+        window.location.href = response.login_url;
+      } catch (error) {
+        console.error("LINE 綁定錯誤:", error);
+        this.$message.error(this.getErrorMessage(error, "LINE 綁定請求失敗"));
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 處理解除綁定
     handleUnbinding() {
+      if (!this.isLineBound) {
+        return;
+      }
       this.unbindDialogVisible = true;
     },
 
-    confirmUnbinding() {
-      this.loading = true;
-      // TODO: 實際的解除綁定邏輯
-      setTimeout(() => {
-        this.loading = false;
-        this.unbindDialogVisible = false;
+    // 確認解除綁定
+    async confirmUnbinding() {
+      try {
+        this.loading = true;
+        const response = await lineUserAPI.unbindUser(this.userId);
+
+        if (!response || !response.success) {
+          throw new Error("解除綁定失敗");
+        }
+
         this.$message.success("已解除 LINE 綁定");
         this.isLineBound = false;
-      }, 1500);
+        this.unbindDialogVisible = false;
+      } catch (error) {
+        console.error("解除綁定錯誤:", error);
+        this.$message.error(this.getErrorMessage(error, "解除綁定失敗"));
+      } finally {
+        this.loading = false;
+      }
     },
 
+    // 返回按鈕處理
     handleBack() {
       this.$router.push("/dashboard");
+    },
+
+    // 獲取錯誤信息
+    getErrorMessage(error, defaultMessage) {
+      if (
+        error &&
+        error.response &&
+        error.response.data &&
+        error.response.data.error
+      ) {
+        return error.response.data.error;
+      }
+
+      if (error && error.message) {
+        return error.message;
+      }
+
+      return defaultMessage;
     }
   }
 };
@@ -177,6 +254,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/variables.scss";
+
 .binding-container {
   min-height: 100vh;
   display: flex;
@@ -239,39 +317,6 @@ export default {
     &.status-unbound {
       background-color: rgba($orange, 0.2);
       color: $orange;
-    }
-  }
-}
-
-.line-info {
-  background: rgba($white, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-
-  .line-profile {
-    display: flex;
-    align-items: center;
-
-    .line-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      margin-right: 15px;
-    }
-
-    .line-details {
-      color: $white;
-
-      .line-name {
-        font-weight: bold;
-        margin-bottom: 5px;
-      }
-
-      .bind-time {
-        font-size: 14px;
-        opacity: 0.8;
-      }
     }
   }
 }

@@ -70,9 +70,6 @@
           >LINE 登入</el-button
         >
         <div class="extra-actions">
-          <el-button class="first-login-button" @click="handleFirstLogin"
-            >初次登入</el-button
-          >
           <el-button class="first-login-button" @click="handleForgetPassword"
             >忘記密碼</el-button
           >
@@ -88,7 +85,7 @@ export default {
   data() {
     const validatePassword = (rule, value, callback) => {
       if (value.length < 4) {
-        callback(new Error("密碼長度小於4位!"));
+        callback(new Error("密碼長度有誤"));
       } else {
         callback();
       }
@@ -127,27 +124,32 @@ export default {
           this.loading = true;
           this.$store
             .dispatch("user/login", this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || "/" });
+            .then(response => {
+              console.log(response);
+              if (response.data.need_change_password) {
+                // 如果需要更改密碼，跳轉到更改密碼頁面
+                this.$router.replace("/changepassword");
+              } else {
+                // 否則跳轉到原定的重定向頁面或首頁
+                this.$router.replace({ path: this.redirect || "/" });
+              }
               this.loading = false;
             })
             .catch(() => {
               this.loading = false;
             });
         } else {
-          console.log("error submit!!");
+          console.log("輸入錯誤，請重新輸入!");
           return false;
         }
       });
     },
     handleLineLogin() {
-      this.$router.push("/binding");
-    },
-    handleFirstLogin() {
-      this.$router.push("/reset");
+      this.$router.replace("/binding");
     },
     handleForgetPassword() {
-      this.$router.push("/resetpaaword");
+      sessionStorage.setItem("resetPasswordAccess", "true");
+      this.$router.replace("/resetpassword");
     }
   }
 };

@@ -42,8 +42,8 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: "/resetpaaword",
-    component: () => import("@/views/login/resetpaaword"),
+    path: "/resetpassword",
+    component: () => import("@/views/login/resetpassword"),
     hidden: true
   },
   {
@@ -54,6 +54,16 @@ export const constantRoutes = [
   {
     path: "/linebinding",
     component: () => import("@/views/login/linebinding"),
+    hidden: true
+  },
+  {
+    path: "/groupbuying/create",
+    component: () => import("@/views/groupbuying/create"),
+    hidden: true
+  },
+  {
+    path: "/groupbuying/edit/:id",
+    component: () => import("@/views/groupbuying/edit"),
     hidden: true
   },
   {
@@ -70,7 +80,7 @@ export const constantRoutes = [
         path: "dashboard",
         name: "Dashboard",
         component: () => import("@/views/dashboard/index"),
-        meta: { title: "首頁", icon: "dashboard" }
+        meta: { title: "首頁", icon: "home" }
       }
     ]
   },
@@ -103,6 +113,7 @@ export const asyncRoutes = [
     path: "/marketingdashboard",
     component: Layout,
     redirect: "/marketingdashboard",
+    hidden: true, //隱藏模塊
     children: [
       {
         path: "marketingdashboard",
@@ -116,6 +127,60 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: "/overview",
+    component: Layout,
+    redirect: "/overview",
+    hidden: true, //隱藏模塊
+    children: [
+      {
+        path: "activity",
+        name: "activity",
+        component: () => import("@/views/overview/index"),
+        meta: {
+          title: "團購活動總覽",
+          icon: "dashboard",
+          perms: ["overview_manage"]
+        }
+      }
+    ]
+  },
+  {
+    path: "/orders",
+    component: Layout,
+    redirect: "/orders",
+    hidden: true, //隱藏模塊
+    children: [
+      {
+        path: "list",
+        name: "list",
+        component: () => import("@/views/orders/list"),
+        meta: {
+          title: "個人訂單管理",
+          icon: "dashboard",
+          perms: ["list_manage"]
+        }
+      }
+    ]
+  },
+  {
+    path: "/profile",
+    component: Layout,
+    redirect: "/profile",
+    children: [
+      {
+        path: "account",
+        name: "account",
+        component: () => import("@/views/account/profile"),
+        meta: {
+          title: "帳號管理",
+          icon: "dashboard",
+          perms: ["profile_manage"]
+        }
+      }
+    ]
+  },
+
   {
     path: "/workflow",
     component: Layout,
@@ -172,11 +237,191 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: "/wms",
+    component: Layout,
+    redirect: "/wms/inventory",
+    name: "wms",
+    meta: {
+      title: "總倉管理",
+      icon: "wmsview",
+      perms: ["wmsview"]
+    },
+    children: [
+      {
+        path: "inventory",
+        name: "inventory",
+        component: () => import("@/views/wms/inventory/index"),
+        meta: {
+          title: "庫存中控台",
+          icon: "wmsinventory_manage",
+          perms: ["wmsinventory_manage"]
+        }
+      },
+      {
+        path: "inventorymanage",
+        name: "inventorymanage",
+        component: () => import("@/views/wms/inventory/inventorymanage"),
+        meta: {
+          title: "庫存管理",
+          icon: "inventory_manage",
+          perms: ["inventory_manage"]
+        }
+      },
+      {
+        path: "ordermanagent",
+        name: "ordermanagent",
+        component: () => import("@/views/wms/ordermanagent/index"),
+        meta: {
+          title: "接單管理",
+          icon: "inventory_batch_manage",
+          perms: ["ordermanagent"]
+        }
+      },
+      {
+        path: "inventorybatchmanage",
+        name: "inventorybatchmanage",
+        component: () => import("@/views/wms/inventory/inventorybatchmanage"),
+        meta: {
+          title: "庫存批號管理",
+          icon: "inventory_batch_manage",
+          perms: ["inventory_batch_manage"]
+        }
+      },
+      {
+        path: "classification",
+        name: "classification",
+        component: () => import("@/views/wms/product/classification"),
+        meta: {
+          title: "行銷類別管理",
+          icon: "tree",
+          perms: ["classification_manage"]
+        }
+      },
+      {
+        path: "warehousecategory",
+        name: "warehousecategory",
+        component: () => import("@/views/wms/product/warehousecategory"),
+        meta: {
+          title: "品號類別管理",
+          icon: "tree",
+          perms: ["warehousecategory_manage"]
+        }
+      },
+      {
+        path: "multi-sku",
+        name: "multi-sku",
+        component: () => import("@/views/wms/multiSku/index"),
+        meta: {
+          title: "品號管理",
+          icon: "list-ordered",
+          perms: ["multi_sku_manage"]
+        }
+      },
+      {
+        path: "sales",
+        name: "sales",
+        component: () => import("@/views/wms/sales/index"),
+        meta: {
+          title: "訂單管理",
+          icon: "shopping-basket",
+          perms: ["sales_manage"]
+        }
+      },
+      {
+        path: "preorder",
+        name: "preorder",
+        component: () => import("@/views/wms/preorder/index"),
+        meta: {
+          title: "訂單預購管理",
+          icon: "package-shipping",
+          perms: ["preorder_manage"]
+        }
+      },
+      {
+        path: "aftersales",
+        name: "aftersales",
+        component: () => import("@/views/wms/aftersales/index"),
+        meta: {
+          title: "售後服務中心",
+          icon: "shopping-cart",
+          perms: ["aftersales_manage"]
+        }
+      },
+      {
+        path: "returns",
+        name: "returns",
+        component: () => import("@/views/wms/returns/index"),
+        meta: {
+          title: "退貨管理",
+          icon: "shopping-cart",
+          perms: ["returns_manage"]
+        }
+      },
+      {
+        path: "complaint",
+        name: "complaint",
+        component: () => import("@/views/wms/complaint/index"),
+        meta: {
+          title: "客訴管理",
+          icon: "shopping-cart",
+          perms: ["complaint_manage"]
+        }
+      }
+    ]
+  },
+  {
+    path: "/groupbuying",
+    component: Layout,
+    redirect: "/groupbuying/index",
+    name: "groupbuying",
+    hidden: true, //隱藏模塊
+    meta: {
+      title: "團購管理",
+      icon: "shopping",
+      perms: ["groupbuying_manage"]
+    },
+    children: [
+      {
+        path: "index",
+        name: "index",
+        hidden: true, //隱藏模塊
+        component: () => import("@/views/groupbuying/index.vue"),
+        meta: {
+          title: "活動管理",
+          icon: "activity",
+          perms: ["activity_manage"]
+        }
+      },
+      {
+        path: "audit",
+        name: "audit",
+        hidden: true, //隱藏模塊
+        component: () => import("@/views/groupbuying/audit/index.vue"),
+        meta: {
+          title: "審核管理",
+          icon: "activity",
+          perms: ["audit_manage"]
+        }
+      },
+      {
+        path: "order",
+        name: "order",
+        hidden: true, //隱藏模塊
+        component: () => import("@/views/groupbuying/order/index.vue"),
+        meta: {
+          title: "訂單管理",
+          icon: "activity",
+          perms: ["order_manage"]
+        }
+      }
+    ]
+  },
+  {
     path: "/system",
     component: Layout,
     redirect: "/system/user",
     name: "System",
-    meta: { title: "系统管理", icon: "example", perms: ["system_manage"] },
+    meta: { title: "系统管理", icon: "system", perms: ["system_manage"] },
     children: [
       {
         path: "user",
