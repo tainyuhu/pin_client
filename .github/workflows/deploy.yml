@@ -6,9 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: 🔄 Checkout code
         uses: actions/checkout@v3
@@ -24,17 +23,14 @@ jobs:
       - name: 🧱 Build project
         run: npm run build
 
-      - name: 🔐 Decode SSH private key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GCP_SSH_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      - name: 🚀 Deploy to GCP VM
-        uses: appleboy/scp-action@master
+      - name: ☁️ Setup gcloud with Service Account
+        uses: google-github-actions/setup-gcloud@v1
         with:
-          host: 34.60.191.49
-          username: s0929834901
-          key: ~/.ssh/id_rsa
-          source: "dist/*"
-          target: "/var/www/marketing_client"
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: bold-vent-456911-e4
+
+      - name: 🚀 Upload dist to GCP VM
+        run: |
+          gcloud compute scp --recurse ./dist/* \
+            s0929834901@instance-20250415-114157:/var/www/marketing_client \
+            --zone=asia-east1-b
