@@ -34,8 +34,8 @@ jobs:
         with:
           project_id: bold-vent-456911-e4
 
-      - name: 🚀 Upload dist to GCP VM
+      - name: 🚀 Deploy to GCP VM
         run: |
           gcloud compute scp --recurse ./dist/* \
             s0929834901@instance-20250415-114157:/var/www/marketing_client \
-            --zone=asia-east1-b
+            --zone us-central1-c
