@@ -1,4 +1,4 @@
-name: Deploy Vue to GCP 
+name: Deploy Vue to GCP  
 
 on:
   push:
