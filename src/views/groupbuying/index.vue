@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <h1>🚀 自動部署測試成功！</h1>
     <!-- 狀態分類標籤 -->
     <el-tabs
       v-model="activeTab"
