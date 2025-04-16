@@ -1,4 +1,4 @@
-name: Deploy Vue to GCP  
+name: Deploy Vue to GCP
 
 on:
   push:
@@ -33,9 +33,10 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: bold-vent-456911-e4
+          install_components: compute
 
       - name: 🚀 Deploy to GCP VM
         run: |
           gcloud compute scp --recurse ./dist/* \
-            s0929834901@instance-20250415-114157:/var/www/marketing_client \
+            s0929834901@instance-20250416-131426:/var/www/marketing_client \
             --zone us-central1-c
